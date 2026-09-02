@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>구석기 시대 사람들의 생활 모습 - 자기주도학습</title>
+<style>
+  :root{
+    --stone:#4a4038;
+    --stone-dark:#2e2620;
+    --clay:#b55a3a;
+    --clay-dark:#8f4429;
+    --fire:#e08a3e;
+    --fire-light:#f6c667;
+    --sand:#f4ece0;
+    --sand-dark:#e6d8c3;
+    --ink:#2b241d;
+    --sub:#6b5f52;
+    --ok:#4c7a4c;
+    --bad:#b5433a;
+    --white:#fffdf9;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:"Malgun Gothic","Apple SD Gothic Neo","Noto Sans KR",sans-serif;
+    background:var(--sand);
+    color:var(--ink);
+    line-height:1.6;
+  }
+  .app{max-width:920px;margin:0 auto;padding:0 0 60px;}
+
+  /* header */
+  header{
+    background:linear-gradient(135deg,var(--stone-dark),var(--stone));
+    color:var(--white);
+    padding:28px 24px 22px;
+    position:relative;
+    overflow:hidden;
+  }
+  header::after{
+    content:"";
+    position:absolute;right:-40px;bottom:-60px;
+    width:220px;height:220px;border-radius:50%;
+    background:radial-gradient(circle,var(--fire) 0%,transparent 70%);
+    opacity:.35;
+  }
+  header h1{margin:0 0 4px;font-size:22px;letter-spacing:-0.3px;position:relative;}
+  header p{margin:0;color:#d8cdbd;font-size:13px;position:relative;}
+
+  /* progress */
+  .progress-wrap{padding:16px 24px 0;}
+  .progress-track{
+    display:flex;gap:6px;margin-top:10px;
+  }
+  .progress-seg{flex:1;height:8px;border-radius:5px;background:var(--sand-dark);overflow:hidden;}
+  .progress-seg i{display:block;height:100%;width:0%;background:linear-gradient(90deg,var(--fire),var(--clay));transition:width .4s ease;}
+  .progress-label{font-size:12px;color:var(--sub);margin-top:6px;text-align:right;}
+
+  /* nav */
+  nav{
+    display:flex;flex-wrap:wrap;gap:8px;
+    padding:16px 24px;
+  }
+  nav button{
+    border:none;background:var(--white);color:var(--sub);
+    padding:9px 14px;border-radius:20px;font-size:13px;font-weight:600;
+    cursor:pointer;border:1px solid var(--sand-dark);
+    transition:all .2s;
+  }
+  nav button.active{background:var(--clay);color:var(--white);border-color:var(--clay);}
+  nav button.done::before{content:"✓ ";}
+
+  main{padding:0 24px;}
+  section{display:none;animation:fade .35s ease;}
+  section.active{display:block;}
+  @keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+  .card{
+    background:var(--white);
+    border:1px solid var(--sand-dark);
+    border-radius:16px;
+    padding:22px 24px;
+    margin-bottom:16px;
+  }
+  .card h2{margin:0 0 6px;font-size:19px;}
+  .tag{
+    display:inline-block;font-size:12px;font-weight:700;color:var(--clay-dark);
+    background:#f3e4d7;padding:3px 10px;border-radius:12px;margin-bottom:10px;
+  }
+  .lead{color:var(--sub);font-size:14px;margin-bottom:6px;}
+
+  .think-box{
+    background:var(--sand);
+    border-radius:14px;
+    padding:18px 20px;
+    margin:14px 0;
+  }
+  .think-box p.q{font-weight:700;font-size:15.5px;margin:0 0 10px;}
+  .reveal-btn{
+    background:var(--fire);color:var(--white);border:none;
+    padding:9px 16px;border-radius:10px;font-size:13.5px;font-weight:700;cursor:pointer;
+  }
+  .reveal-btn:hover{background:var(--clay);}
+  .reveal-content{
+    display:none;margin-top:12px;padding-top:12px;border-top:1px dashed var(--sand-dark);
+    font-size:14px;color:var(--ink);
+  }
+  .reveal-content.show{display:block;}
+
+  textarea.my-answer{
+    width:100%;min-height:60px;margin-top:10px;padding:10px;border-radius:10px;
+    border:1px solid var(--sand-dark);font-family:inherit;font-size:13.5px;resize:vertical;
+  }
+
+  .hanja-row{display:flex;gap:10px;margin:14px 0;flex-wrap:wrap;}
+  .hanja{
+    background:var(--stone-dark);color:var(--fire-light);
+    width:64px;height:64px;border-radius:12px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:28px;font-weight:700;flex-shrink:0;
+  }
+  .hanja-meaning{font-size:13px;color:var(--sub);align-self:center;}
+
+  .fact-list{margin:0;padding:0;list-style:none;}
+  .fact-list li{
+    display:flex;gap:12px;align-items:flex-start;
+    padding:12px 0;border-bottom:1px solid var(--sand-dark);
+  }
+  .fact-list li:last-child{border-bottom:none;}
+  .fact-icon{
+    width:38px;height:38px;border-radius:10px;background:var(--sand);
+    display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;
+  }
+  .fact-title{font-weight:700;font-size:14.5px;margin:0 0 2px;}
+  .fact-desc{font-size:13.5px;color:var(--sub);margin:0;}
+
+  .video-link{
+    display:flex;align-items:center;gap:10px;
+    background:var(--sand);border-radius:12px;padding:12px 14px;margin:10px 0;
+    text-decoration:none;color:var(--ink);font-size:13.5px;font-weight:600;
+    cursor:pointer;
+  }
+  .video-link:hover{background:var(--sand-dark);}
+  .video-link .play{
+    width:30px;height:30px;border-radius:50%;background:var(--clay);color:#fff;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;
+  }
+  .video-frame-wrap{position:relative;width:100%;padding-top:56.25%;border-radius:12px;overflow:hidden;margin:12px 0;background:#000;}
+  .video-frame-wrap iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:0;}
+
+  .btn-row{display:flex;justify-content:space-between;margin-top:18px;gap:10px;}
+  .nav-btn{
+    background:var(--stone-dark);color:var(--white);border:none;
+    padding:11px 18px;border-radius:10px;font-size:13.5px;font-weight:700;cursor:pointer;
+  }
+  .nav-btn.ghost{background:transparent;color:var(--sub);border:1px solid var(--sand-dark);}
+  .nav-btn:disabled{opacity:.4;cursor:not-allowed;}
+
+  /* quiz */
+  .q-item{margin-bottom:20px;}
+  .q-item p.qtext{font-weight:700;font-size:14.5px;margin:0 0 10px;}
+  .opt{
+    display:block;width:100%;text-align:left;
+    background:var(--sand);border:1px solid var(--sand-dark);
+    padding:10px 14px;border-radius:10px;margin-bottom:8px;
+    font-size:13.5px;cursor:pointer;
+  }
+  .opt.correct{background:#e3f0e3;border-color:var(--ok);}
+  .opt.wrong{background:#f6e0dd;border-color:var(--bad);}
+  .opt:disabled{cursor:default;}
+  .q-feedback{font-size:13px;margin-top:4px;font-weight:600;}
+  .q-feedback.ok{color:var(--ok);}
+  .q-feedback.bad{color:var(--bad);}
+
+  .score-card{
+    text-align:center;padding:30px 20px;
+  }
+  .score-num{font-size:44px;font-weight:800;color:var(--clay);}
+  .score-sub{color:var(--sub);font-size:14px;margin-top:4px;}
+
+  .summary-map{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  @media(max-width:600px){.summary-map{grid-template-columns:1fr;}}
+  .summary-block{background:var(--sand);border-radius:12px;padding:14px 16px;}
+  .summary-block h3{margin:0 0 8px;font-size:14px;color:var(--clay-dark);}
+  .summary-block ul{margin:0;padding-left:18px;font-size:13px;color:var(--ink);}
+  .summary-block li{margin-bottom:4px;}
+
+  footer{text-align:center;color:var(--sub);font-size:12px;padding:20px 24px 0;}
+</style>
+</head>
+<body>
+<div class="app">
+
+<header>
+  <h1>🪨 구석기 시대 사람들의 생활 모습을 알아볼까요</h1>
+  <p>사회 5-2 · 교과서 12~14쪽 · 스스로 학습하는 역사 여행</p>
+  <div class="progress-wrap">
+    <div class="progress-track" id="progressTrack"></div>
+    <div class="progress-label" id="progressLabel">0 / 6 단계 완료</div>
+  </div>
+</header>
+
+<nav id="stepNav"></nav>
+
+<main>
+
+<!-- STEP 0: 생각열기 -->
+<section id="step-0" class="active">
+  <div class="card">
+    <span class="tag">생각 열기 · 교과서 12쪽</span>
+    <h2>글자가 없던 시기, 사람들의 생활을 어떻게 알 수 있을까요?</h2>
+    <p class="lead">먼저 스스로 생각해본 다음, 버튼을 눌러 이야기를 이어가 보세요.</p>
+
+    <div class="think-box">
+      <p class="q">Q1. 처음부터 사람들이 글자로 생각을 나타냈을까요?</p>
+      <textarea class="my-answer" placeholder="내 생각을 적어보세요"></textarea>
+      <button class="reveal-btn" onclick="reveal(this)">힌트 보기</button>
+      <div class="reveal-content">
+        아니요. 글자가 없던 아주 오래전에도 사람들은 살고 있었습니다. 그렇다면 그 사람들의 생활 모습은 어떻게 알 수 있을까요?
+      </div>
+    </div>
+
+    <div class="think-box">
+      <p class="q">Q2. 옛날 사람들이 바위에 그림을 그리거나, 그 아래 땅속에 물건을 넣은 까닭은 무엇일까요?</p>
+      <textarea class="my-answer" placeholder="내 생각을 적어보세요"></textarea>
+      <button class="reveal-btn" onclick="reveal(this)">예시 답 보기</button>
+      <div class="reveal-content">
+        · 오늘 있었던 일이나 했던 생각을 바위에 그림으로 그렸을 것이다.<br>
+        · 무엇인가를 기념하려고 땅속에 물건을 넣었을 것이다.<br><br>
+        <b>➡ 이렇게 남겨진 그림, 도구, 유물을 통해 우리는 문자가 없던 시대 사람들의 생활 모습을 짐작할 수 있습니다.</b>
+      </div>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="nav-btn ghost" disabled>이전</button>
+    <button class="nav-btn" onclick="goStep(1)">다음: 선사 시대란? →</button>
+  </div>
+</section>
+
+<!-- STEP 1: 선사시대 -->
+<section id="step-1">
+  <div class="card">
+    <span class="tag">1단계 · 교과서 13쪽</span>
+    <h2>선사 시대의 의미를 알아봅시다</h2>
+    <ul class="fact-list">
+      <li>
+        <div class="fact-icon">🗓️</div>
+        <div>
+          <p class="fact-title">한반도에 사람이 살기 시작한 때</p>
+          <p class="fact-desc">약 70만 년 전부터로 추정됩니다.</p>
+        </div>
+      </li>
+      <li>
+        <div class="fact-icon">✍️</div>
+        <div>
+          <p class="fact-title">기록이 없는 시대</p>
+          <p class="fact-desc">이 당시에는 문자를 사용하기 이전이어서 글로 쓰인 기록이 없습니다.</p>
+        </div>
+      </li>
+      <li>
+        <div class="fact-icon">📜</div>
+        <div>
+          <p class="fact-title">선사 시대(先史時代)</p>
+          <p class="fact-desc">문자로 역사가 기록되기 이전의 시기를 '선사 시대'라고 합니다.</p>
+        </div>
+      </li>
+    </ul>
+
+    <div class="hanja-row">
+      <div class="hanja">先</div>
+      <div class="hanja-meaning">먼저 <b>선</b></div>
+      <div class="hanja">史</div>
+      <div class="hanja-meaning">역사 <b>사</b></div>
+      <div class="hanja-meaning" style="margin-left:auto;font-weight:700;color:var(--clay-dark);">= 역사(기록) 이전의 시대</div>
+    </div>
+
+    <div class="think-box">
+      <p class="q">✅ 확인해보기: 선사 시대는 왜 기록이 남아있지 않을까요? 한 문장으로 정리해 보세요.</p>
+      <textarea class="my-answer" placeholder="예: 문자가 만들어지기 전이라 글로 남길 수 없었기 때문이다."></textarea>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="nav-btn ghost" onclick="goStep(0)">← 이전</button>
+    <button class="nav-btn" onclick="goStep(2)">다음: 구석기 시대란? →</button>
+  </div>
+</section>
+
+<!-- STEP 2: 구석기시대 정의 -->
+<section id="step-2">
+  <div class="card">
+    <span class="tag">2단계 · 교과서 13쪽</span>
+    <h2>구석기 시대의 생활 모습을 알아봅시다</h2>
+    <p class="lead">이 당시 사람들은 돌을 깨뜨리거나 떼어서 만든 <b>뗀석기</b>를 주로 사용했습니다. 그래서 이 시기를 <b>구석기 시대</b>라고 합니다.</p>
+
+    <div class="hanja-row">
+      <div class="hanja">舊</div>
+      <div class="hanja-meaning">옛 <b>구</b></div>
+      <div class="hanja">石</div>
+      <div class="hanja-meaning">돌 <b>석</b></div>
+      <div class="hanja">器</div>
+      <div class="hanja-meaning">그릇/도구 <b>기</b></div>
+    </div>
+    <p class="lead">➡ '옛 돌 도구'를 사용한 시대라는 뜻이에요.</p>
+
+    <div class="video-link" onclick="toggleVideo('v-ttenseokgi', this)">
+      <div class="play">▶</div> (영상) 뗀석기 만드는 법 &nbsp;·&nbsp; 눌러서 열기/닫기
+    </div>
+    <div class="video-frame-wrap" id="v-ttenseokgi" style="display:none;">
+      <iframe src="https://www.youtube.com/embed/vf13ISwem1E" title="뗀석기 만드는 법" allowfullscreen></iframe>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 style="font-size:16px;">구석기 시대 사람들은 이렇게 살았어요</h2>
+    <ul class="fact-list">
+      <li>
+        <div class="fact-icon">🚶</div>
+        <div>
+          <p class="fact-title">이동 생활</p>
+          <p class="fact-desc">먹을 것을 찾아 옮겨 다니며 생활했습니다.</p>
+        </div>
+      </li>
+      <li>
+        <div class="fact-icon">⛺</div>
+        <div>
+          <p class="fact-title">막집과 동굴</p>
+          <p class="fact-desc">한데(open site)에 막집을 짓고 살았고, 동굴이나 바위 그늘에서도 생활했습니다.</p>
+        </div>
+      </li>
+      <li>
+        <div class="fact-icon">🔥</div>
+        <div>
+          <p class="fact-title">불의 사용</p>
+          <p class="fact-desc">불을 사용해 추위와 사나운 짐승으로부터 몸을 보호하고, 음식을 익혀 먹었습니다.</p>
+        </div>
+      </li>
+      <li>
+        <div class="fact-icon">🍖</div>
+        <div>
+          <p class="fact-title">사냥과 채집</p>
+          <p class="fact-desc">나무 열매나 풀뿌리 등을 채집하고, 동물을 사냥해 고기를 얻었습니다.</p>
+        </div>
+      </li>
+      <li>
+        <div class="fact-icon">🦴</div>
+        <div>
+          <p class="fact-title">가죽옷</p>
+          <p class="fact-desc">사냥한 짐승의 가죽이나 풀을 엮어서 옷을 만들어 입었습니다.</p>
+        </div>
+      </li>
+    </ul>
+
+    <div class="video-link" onclick="toggleVideo('v-guseokgiin', this)">
+      <div class="play">▶</div> (영상) 구석기인의 하루 &nbsp;·&nbsp; 눌러서 열기/닫기
+    </div>
+    <div class="video-frame-wrap" id="v-guseokgiin" style="display:none;">
+      <iframe src="https://www.youtube.com/embed/VtOfNLJVrnw" title="구석기인의 하루" allowfullscreen></iframe>
+    </div>
+
+    <div class="video-link" onclick="toggleVideo('v-geumgul', this)">
+      <div class="play">▶</div> (영상) 단양 금굴 유적 &nbsp;·&nbsp; 눌러서 열기/닫기
+    </div>
+    <div class="video-frame-wrap" id="v-geumgul" style="display:none;">
+      <iframe src="https://www.youtube.com/embed/RL1Y55S71AQ" title="단양 금굴 유적" allowfullscreen></iframe>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="nav-btn ghost" onclick="goStep(1)">← 이전</button>
+    <button class="nav-btn" onclick="goStep(3)">다음: 주먹 도끼 이야기 →</button>
+  </div>
+</section>
+
+<!-- STEP 3: 주먹도끼 -->
+<section id="step-3">
+  <div class="card">
+    <span class="tag">3단계 · 교과서 14쪽</span>
+    <h2>구석기 시대의 주먹 도끼</h2>
+    <p class="lead">"그냥 길가에서 볼 수 있는 돌 아닌가요?" 라고 생각할 수 있지만, 전문가가 보면 일반 돌과 뗀석기(주먹 도끼)를 구분할 수 있습니다.</p>
+
+    <div class="video-link" onclick="toggleVideo('v-gubun', this)">
+      <div class="play">▶</div> (영상) 일반 돌과 뗀석기를 어떻게 구분할 수 있었을까? &nbsp;·&nbsp; 눌러서 열기/닫기
+    </div>
+    <div class="video-frame-wrap" id="v-gubun" style="display:none;">
+      <iframe src="https://www.youtube.com/embed/G1Yj7JxbyGg" title="뗀석기 구분법" allowfullscreen></iframe>
+    </div>
+
+    <div class="think-box">
+      <p class="q">🧐 생각해보기: 주먹 도끼는 어디에 사용했을까요?</p>
+      <textarea class="my-answer" placeholder="내 생각을 적어보세요"></textarea>
+      <button class="reveal-btn" onclick="reveal(this)">예시 답 보기</button>
+      <div class="reveal-content">
+        구석기 시대 사람들은 주먹 도끼로 자르기, 두들기기, 땅파기 등 다양한 용도로 사용했습니다.<br>
+        예) 사냥한 동물의 가죽을 벗기고 고기를 잘라 손질하는 데 사용했습니다.
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 style="font-size:16px;">🌍 세계 역사학계를 뒤흔든 발견</h2>
+    <p class="lead">이렇게 발견된 주먹 도끼가 세계 역사학계를 뒤흔들기도 했습니다. 우리나라(연천 전곡리, 한탄강)에서 발견된 주먹 도끼는 당시 세계 고고학 지도를 바꾼 중요한 발견이었습니다.</p>
+
+    <div class="video-link" onclick="toggleVideo('v-migun', this)">
+      <div class="play">▶</div> (영상) 미군이 발견한 주먹 도끼 &nbsp;·&nbsp; 눌러서 열기/닫기
+    </div>
+    <div class="video-frame-wrap" id="v-migun" style="display:none;">
+      <iframe src="https://www.youtube.com/embed/Ghp8YjHcRlU" title="미군이 발견한 주먹도끼" allowfullscreen></iframe>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="nav-btn ghost" onclick="goStep(2)">← 이전</button>
+    <button class="nav-btn" onclick="goStep(4)">다음: 정리 퀴즈 →</button>
+  </div>
+</section>
+
+<!-- STEP 4: QUIZ -->
+<section id="step-4">
+  <div class="card">
+    <span class="tag">4단계 · 확인 학습</span>
+    <h2>오늘 배운 내용을 퀴즈로 확인해요</h2>
+    <p class="lead">답을 고르면 바로 정답 여부를 알려줘요. 모든 문제를 풀면 결과가 나옵니다.</p>
+    <div id="quizArea"></div>
+    <div id="scoreArea" class="score-card" style="display:none;">
+      <div class="score-num" id="scoreNum">0 / 8</div>
+      <div class="score-sub" id="scoreMsg"></div>
+      <button class="nav-btn" style="margin-top:16px;" onclick="resetQuiz()">다시 풀기</button>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="nav-btn ghost" onclick="goStep(3)">← 이전</button>
+    <button class="nav-btn" onclick="goStep(5)">다음: 배운 내용 정리 →</button>
+  </div>
+</section>
+
+<!-- STEP 5: SUMMARY -->
+<section id="step-5">
+  <div class="card">
+    <span class="tag">5단계 · 마무리</span>
+    <h2>구석기 시대 한눈에 정리하기</h2>
+    <div class="summary-map">
+      <div class="summary-block">
+        <h3>📜 선사 시대</h3>
+        <ul>
+          <li>문자 기록 이전의 시대</li>
+          <li>한반도에 약 70만 년 전부터 사람이 살기 시작</li>
+        </ul>
+      </div>
+      <div class="summary-block">
+        <h3>🪨 구석기 시대</h3>
+        <ul>
+          <li>舊(옛) 石(돌) 器(도구) = 뗀석기를 사용한 시대</li>
+          <li>돌을 깨뜨리거나 떼어서 도구를 만듦</li>
+        </ul>
+      </div>
+      <div class="summary-block">
+        <h3>🏕️ 생활 모습</h3>
+        <ul>
+          <li>먹을 것을 찾아 이동 생활</li>
+          <li>막집·동굴·바위 그늘에서 거주</li>
+          <li>불 사용 (보호 + 조리)</li>
+          <li>사냥·채집, 가죽옷</li>
+        </ul>
+      </div>
+      <div class="summary-block">
+        <h3>✊ 주먹 도끼</h3>
+        <ul>
+          <li>자르기·두들기기·땅파기 등 다목적 도구</li>
+          <li>연천 전곡리 발견 → 세계 고고학사에 영향</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="think-box" style="margin-top:16px;">
+      <p class="q">✍️ 오늘 배운 내용을 나만의 말로 3문장으로 정리해 보세요.</p>
+      <textarea class="my-answer" style="min-height:90px;" placeholder="구석기 시대 사람들은..."></textarea>
+    </div>
+
+    <div class="card" style="margin-top:16px;background:var(--sand);border:none;">
+      <p class="lead" style="margin:0;"><b>다음 시간 예고</b> — 신석기 시대 사람들의 생활 모습을 알아봅시다!</p>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="nav-btn ghost" onclick="goStep(4)">← 이전</button>
+    <button class="nav-btn ghost" disabled>학습 완료 🎉</button>
+  </div>
+</section>
+
+</main>
+
+<footer>사회 5-2-1-02 · 구석기 시대 사람들의 생활 모습을 알아볼까요 (교과서 12~14쪽) · 자기주도학습용 웹앱</footer>
+</div>
+
+<script>
+const stepNames = ["생각 열기","선사 시대","구석기 시대","주먹 도끼","확인 퀴즈","정리하기"];
+let currentStep = 0;
+let completedSteps = new Set();
+
+function buildNav(){
+  const nav = document.getElementById('stepNav');
+  nav.innerHTML = '';
+  stepNames.forEach((name,i)=>{
+    const b = document.createElement('button');
+    b.textContent = name;
+    b.id = 'navbtn-'+i;
+    b.onclick = ()=>goStep(i);
+    nav.appendChild(b);
+  });
+}
+
+function buildProgress(){
+  const track = document.getElementById('progressTrack');
+  track.innerHTML = '';
+  stepNames.forEach((_,i)=>{
+    const seg = document.createElement('div');
+    seg.className = 'progress-seg';
+    seg.innerHTML = '<i id="seg-'+i+'"></i>';
+    track.appendChild(seg);
+  });
+}
+
+function goStep(i){
+  completedSteps.add(currentStep);
+  currentStep = i;
+  document.querySelectorAll('main section').forEach(s=>s.classList.remove('active'));
+  document.getElementById('step-'+i).classList.add('active');
+  document.querySelectorAll('nav button').forEach((b,idx)=>{
+    b.classList.toggle('active', idx===i);
+    b.classList.toggle('done', completedSteps.has(idx) && idx!==i);
+  });
+  updateProgress();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function updateProgress(){
+  const total = stepNames.length;
+  stepNames.forEach((_,i)=>{
+    const seg = document.getElementById('seg-'+i);
+    seg.style.width = completedSteps.has(i) ? '100%' : '0%';
+  });
+  document.getElementById('progressLabel').textContent = completedSteps.size + ' / ' + total + ' 단계 완료';
+}
+
+function reveal(btn){
+  const box = btn.nextElementSibling;
+  box.classList.toggle('show');
+  btn.textContent = box.classList.contains('show') ? '숨기기' : '다시 보기';
+}
+
+function toggleVideo(id){
+  const frame = document.getElementById(id);
+  const showing = frame.style.display !== 'none';
+  frame.style.display = showing ? 'none' : 'block';
+}
+
+/* ---------- QUIZ ---------- */
+const quizData = [
+  {
+    q: "문자로 역사가 기록되기 이전의 시기를 무엇이라고 하나요?",
+    opts: ["선사 시대","역사 시대","신석기 시대","청동기 시대"],
+    answer: 0,
+    exp: "先(먼저 선) 史(역사 사) — 문자 기록 이전의 시대를 선사 시대라고 합니다."
+  },
+  {
+    q: "한반도와 그 주변 지역에 사람이 살기 시작한 것은 약 언제부터로 추정되나요?",
+    opts: ["약 7만 년 전","약 70만 년 전","약 700년 전","약 7000년 전"],
+    answer: 1,
+    exp: "약 70만 년 전부터로 추정됩니다."
+  },
+  {
+    q: "구석기 시대 사람들이 주로 사용한 도구는 무엇인가요?",
+    opts: ["청동기","간석기","뗀석기","철기"],
+    answer: 2,
+    exp: "돌을 깨뜨리거나 떼어서 만든 '뗀석기'를 주로 사용했습니다."
+  },
+  {
+    q: "'구석기(舊石器)'의 한자 뜻으로 알맞은 것은?",
+    opts: ["새로운 쇠 도구","옛 돌 도구","오래된 흙 그릇","단단한 나무 도구"],
+    answer: 1,
+    exp: "舊(옛 구) 石(돌 석) 器(도구 기) = '옛 돌 도구'라는 뜻입니다."
+  },
+  {
+    q: "구석기 시대 사람들이 먹을 것을 찾아 옮겨 다닌 생활을 무엇이라고 할 수 있나요?",
+    opts: ["정착 생활","이동 생활","농경 생활","유목 목축"],
+    answer: 1,
+    exp: "먹을 것을 찾아 옮겨 다니며 생활했기 때문에 이동 생활이라고 합니다."
+  },
+  {
+    q: "구석기 시대 사람들이 살았던 곳으로 알맞지 않은 것은?",
+    opts: ["한데의 막집","동굴","바위 그늘","기와집"],
+    answer: 3,
+    exp: "기와집은 훨씬 후대에 등장합니다. 구석기 시대에는 막집, 동굴, 바위 그늘에서 살았습니다."
+  },
+  {
+    q: "구석기 시대 사람들이 불을 사용한 까닭으로 알맞은 것은?",
+    opts: ["농사를 짓기 위해","추위와 짐승으로부터 몸을 보호하고 음식을 익혀 먹기 위해","금속을 녹이기 위해","도자기를 굽기 위해"],
+    answer: 1,
+    exp: "불로 몸을 보호하고 음식을 익혀 먹을 수 있었습니다."
+  },
+  {
+    q: "주먹 도끼의 쓰임새로 알맞지 않은 것은?",
+    opts: ["자르기","두들기기","땅파기","글씨 쓰기"],
+    answer: 3,
+    exp: "주먹 도끼는 자르기, 두들기기, 땅파기 등 다양한 용도로 쓰였습니다. 구석기 시대에는 문자가 없었습니다."
+  }
+];
+
+let quizState = quizData.map(()=>null);
+
+function renderQuiz(){
+  const area = document.getElementById('quizArea');
+  area.innerHTML = '';
+  document.getElementById('scoreArea').style.display = 'none';
+  quizData.forEach((item, qi)=>{
+    const wrap = document.createElement('div');
+    wrap.className = 'q-item';
+    const qtext = document.createElement('p');
+    qtext.className = 'qtext';
+    qtext.textContent = (qi+1) + '. ' + item.q;
+    wrap.appendChild(qtext);
+
+    item.opts.forEach((opt, oi)=>{
+      const b = document.createElement('button');
+      b.className = 'opt';
+      b.textContent = opt;
+      b.onclick = ()=>answerQuiz(qi, oi, wrap);
+      wrap.appendChild(b);
+    });
+
+    const fb = document.createElement('div');
+    fb.className = 'q-feedback';
+    fb.id = 'fb-'+qi;
+    wrap.appendChild(fb);
+
+    area.appendChild(wrap);
+  });
+}
+
+function answerQuiz(qi, oi, wrap){
+  if(quizState[qi] !== null) return;
+  quizState[qi] = oi;
+  const opts = wrap.querySelectorAll('.opt');
+  opts.forEach((b, idx)=>{
+    b.disabled = true;
+    if(idx === quizData[qi].answer) b.classList.add('correct');
+    else if(idx === oi) b.classList.add('wrong');
+  });
+  const fb = document.getElementById('fb-'+qi);
+  if(oi === quizData[qi].answer){
+    fb.textContent = '✅ 정답이에요! ' + quizData[qi].exp;
+    fb.className = 'q-feedback ok';
+  } else {
+    fb.textContent = '❌ 아쉬워요. ' + quizData[qi].exp;
+    fb.className = 'q-feedback bad';
+  }
+  if(quizState.every(v=>v!==null)) showScore();
+}
+
+function showScore(){
+  const correct = quizState.filter((v,i)=>v===quizData[i].answer).length;
+  document.getElementById('scoreArea').style.display = 'block';
+  document.getElementById('scoreNum').textContent = correct + ' / ' + quizData.length;
+  let msg = '';
+  if(correct === quizData.length) msg = '완벽해요! 구석기 시대 박사님이네요 🏆';
+  else if(correct >= quizData.length*0.6) msg = '잘했어요! 조금만 더 복습해봐요 💪';
+  else msg = '괜찮아요, 다시 한 번 내용을 읽고 도전해봐요 📖';
+  document.getElementById('scoreMsg').textContent = msg;
+}
+
+function resetQuiz(){
+  quizState = quizData.map(()=>null);
+  renderQuiz();
+}
+
+buildNav();
+buildProgress();
+renderQuiz();
+goStep(0);
+</script>
+</body>
+</html>
